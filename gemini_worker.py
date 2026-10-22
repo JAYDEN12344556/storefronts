@@ -57,7 +57,7 @@ def call_gemini(product_name, supplier_cost, target_price, api_key):
         "mode": "LOCAL INSTANT ENGINE"
     }
 
-def export_html_store(product_name, price, data, out_dir):
+def export_html_store(product_name, price, data, out_dir, stripe_link=""):
     os.makedirs(out_dir, exist_ok=True)
     slug = "".join(c if c.isalnum() else "_" for c in product_name.lower())
     filepath = os.path.join(out_dir, f"{slug}_store.html")
@@ -100,40 +100,6 @@ def export_html_store(product_name, price, data, out_dir):
 </html>"""
     with open(filepath, "w") as f:
         f.write(html)
-        
-    # Also export a dedicated TikTok Ad Script text file
-    txt_filepath = os.path.join(out_dir, f"{slug}_tiktok_script.txt")
-    txt_content = f"""=========================================
-TIKTOK VIRAL AD CAMPAIGN: {product_name}
-=========================================
-[0:00 - 0:03] HOOK:
-{data.get('tiktok_hook')}
-
-[0:03 - 0:15] PROBLEM & SOLUTION:
-{data.get('subheadline')}
-
-[0:15 - 0:30] KEY FEATURES:
-- {data.get('bullets', [''])[0]}
-- {data.get('bullets', ['',''])[1] if len(data.get('bullets', [])) > 1 else ''}
-- {data.get('bullets', ['','',''])[2] if len(data.get('bullets', [])) > 2 else ''}
-
-[0:30 - 0:45] CALL TO ACTION:
-Get yours today for just ${price}! Click the link in bio before this batch sells out.
-=========================================
-SEO TAGS: {data.get('seo_tags')}
-"""
-    with open(txt_filepath, "w") as tf:
-        tf.write(txt_content)
-    
-    # Auto-push to GitHub Pages repository if configured
-    try:
-        repo_dir = os.path.dirname(out_dir)
-        os.system(f"cd {repo_dir} && git init -b main > /dev/null 2>&1 || true")
-        os.system(f"cd {repo_dir} && git add . > /dev/null 2>&1")
-        os.system(f"cd {repo_dir} && git commit -m 'Auto-deployed store: {product_name}' > /dev/null 2>&1 || true")
-    except Exception:
-        pass
-
     return filepath
 
 if __name__ == "__main__":
